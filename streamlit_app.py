@@ -87,22 +87,18 @@ if vegetables or selected_models:
         st.write(filtered_df)
 
 if selected_models:
-    # 예: ['artichoke_pred_LGBM', 'cabbage_pred_XGBoost']
-    selected_rows = [col.split('_pred_')[0] for col in selected_models]
-    selected_cols = [col.split('_pred_')[1] for col in selected_models]
-
-    # 중복 제거
-    selected_rows = list(set(selected_rows))
-    selected_cols = list(set(selected_cols))
-
-    # ✅ 행과 열 모두 필터링
-    filtered_metrics = metric_summary.loc[
-        metric_summary.index.intersection(selected_rows),
-        metric_summary.columns.intersection(selected_cols)
-    ]
-
     st.subheader('📊 선택한 예측 모델의 정확도 Summary')
-    st.write(filtered_metrics)
+
+    for model_col in selected_models:
+        product = model_col.split('_pred_')[0]   # 예: 'artichoke'
+        model = model_col.split('_pred_')[1]     # 예: 'LGBM'
+
+        try:
+            value = metric_summary.loc[product, model]
+            st.metric(label=f"{product} + {model}", value=round(value, 4))
+        except KeyError:
+            st.warning(f"{product} + {model} 에 대한 정확도 정보가 없습니다.")
+
 
 
 
