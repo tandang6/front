@@ -53,6 +53,15 @@ def plot_predictions_over_time(df, vegetables, rolling_mean_window):
     st.pyplot(fig)
 
 # 제목
+# 페이지 상단 여백 제거
+st.markdown("""
+    <style>
+        .block-container {
+            padding-top: 1rem;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title('🍇농산물 가격 예측 대시보드🥭')
 st.markdown("왼쪽에서 품목과 예측모델, 날짜를 입력하면 특정기간 이후 예측 가격이 표시됩니다.")
 
