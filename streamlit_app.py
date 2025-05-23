@@ -83,27 +83,26 @@ if vegetables or selected_models:
     st.subheader('📈 품목별 실제 가격 + 예측 결과')
     plot_predictions_over_time(filtered_df, vegetables + selected_models, rolling_mean_window)
 
-    # 정확도 카드 스타일 출력
+    # 정확도 카드 스타일 출력 (expander로 감싸기)
     if selected_models:
-        st.subheader('📊 선택한 예측 모델의 정확도 Summary (퍼센트)')
+        with st.expander('📊 선택한 예측 모델의 정확도 보기 (퍼센트)'):
+            for model_col in selected_models:
+                product = model_col.split('_pred_')[0]
+                model = model_col.split('_pred_')[1]
 
-        for model_col in selected_models:
-            product = model_col.split('_pred_')[0]
-            model = model_col.split('_pred_')[1]
+                try:
+                    value = metric_summary.loc[product, model]
+                    percent_value = round(value * 100, 2)
+                    st.metric(label=f"{product} + {model}", value=f"{percent_value}%")
+                except KeyError:
+                    st.warning(f"{product} + {model} 에 대한 정확도 정보가 없습니다.")
 
-            try:
-                value = metric_summary.loc[product, model]
-                percent_value = round(value * 100, 2)
-                st.metric(label=f"{product} + {model}", value=f"{percent_value}%")
-            except KeyError:
-                st.warning(f"{product} + {model} 에 대한 정확도 정보가 없습니다.")
+            st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
 
-        st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
-
-    # 원본 DataFrame 보기 토글
-with st.expander("🗂 Show Original Filtered DataFrame"):
-    st.dataframe(filtered_df)
-
+    # 원본 DataFrame 보기 토글 (expander로 감싸기)
+    with st.expander("🗂 Show Original Filtered DataFrame"):
+        target_columns = vegetables + selected_models
+        st.dataframe(filtered_df[target_columns])
 
 # 품목 한글 표기 안내
 st.sidebar.markdown("""
