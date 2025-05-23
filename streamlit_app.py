@@ -4,25 +4,25 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ✅ CSV 경로
+# 파일 경로
 csv_file_path = 'streamlit.csv'
 metric_file_path = 'metric_summary.csv'
 
-# ✅ 데이터 로딩
+# 데이터 로딩
 @st.cache_data
 def load_data(file_path):
     return pd.read_csv(file_path)
 
 df = load_data(csv_file_path)
 
-# ✅ 날짜 처리
+# 날짜 컬럼 처리
 if 'date' in df.columns:
     df['date'] = pd.to_datetime(df['date'])
     df.set_index('date', inplace=True)
 else:
     st.error("Date column not found in the CSV file.")
 
-# ✅ 전처리 (예측 구간 이후 실제값 제거)
+# 전처리 함수 (cutoff 이후 실제값 제거)
 def preprocess_data(df):
     cutoff_date = pd.to_datetime('2020-09-28')
     cols_to_zero = ['cabbage', 'radish', 'garlic', 'onion', 'daikon', 'cilantro', 'artichoke']
@@ -31,7 +31,11 @@ def preprocess_data(df):
 
 df = preprocess_data(df)
 
-# ✅ 그래프 함수
+# 예측 성능 요약 불러오기
+metric_summary = pd.read_csv(metric_file_path)
+metric_summary.set_index('product', inplace=True)
+
+# 시각화 함수
 def plot_predictions_over_time(df, vegetables, rolling_mean_window):
     fig, ax = plt.subplots(figsize=(14, 7))
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
@@ -49,15 +53,11 @@ def plot_predictions_over_time(df, vegetables, rolling_mean_window):
     fig.tight_layout()
     st.pyplot(fig)
 
-# ✅ metric summary 불러오기
-metric_summary = pd.read_csv(metric_file_path)
-metric_summary.set_index('product', inplace=True)
-
-# ✅ Streamlit 제목
+# 제목 및 설명
 st.title('🍇농산물 가격 예측 대시보드🥭')
 st.markdown("왼쪽에서 품목과 예측모델, 날짜를 입력하면 특정기간 이후 예측 가격이 표시됩니다.")
 
-# ✅ 사이드바 - 품목/모델/날짜/옵션 선택
+# 품목 및 예측 모델 추출
 product_columns = [col for col in df.columns if '_pred_' not in col and not col.startswith('Unnamed')]
 sorted_vegetables = sorted(product_columns)
 
@@ -67,9 +67,9 @@ label_map = {
     for col in pred_model_columns
 }
 
+# 사이드바 입력
 st.sidebar.title('조회 항목 설정')
 vegetables = st.sidebar.multiselect('조회 품목:', sorted_vegetables)
-
 selected_labels = st.sidebar.multiselect('예측 모델 선택:', list(label_map.keys()))
 selected_models = [label_map[label] for label in selected_labels]
 
@@ -77,35 +77,34 @@ start_date = st.sidebar.date_input('시작일', df.index.min())
 end_date = st.sidebar.date_input('마지막일', df.index.max())
 rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_value=30, value=7)
 
-if selected_models:
-    st.subheader('📊 선택한 예측 모델의 정확도 Summary (퍼센트)')
+# 시각화 실행
+if vegetables or selected_models:
+    filtered_df = df.loc[start_date:end_date]
+    st.subheader('📈 품목별 실제 가격 + 예측 결과')
+    plot_predictions_over_time(filtered_df, vegetables + selected_models, rolling_mean_window)
 
-    target_columns = vegetables + selected_models
+    # 정확도 카드 스타일 출력
+    if selected_models:
+        st.subheader('📊 선택한 예측 모델의 정확도 Summary (퍼센트)')
 
-    # ✅ st.metric()으로 정확도를 %로 변환하여 출력
-    for model_col in selected_models:
-        product = model_col.split('_pred_')[0]
-        model = model_col.split('_pred_')[1]
+        for model_col in selected_models:
+            product = model_col.split('_pred_')[0]
+            model = model_col.split('_pred_')[1]
 
-        try:
-            value = metric_summary.loc[product, model]
-            percent_value = round(value * 100, 2)  # 퍼센트 변환
-            st.metric(label=f"{product} + {model}", value=f"{percent_value}%")
-        except KeyError:
-            st.warning(f"{product} + {model} 에 대한 정확도 정보가 없습니다.")
+            try:
+                value = metric_summary.loc[product, model]
+                percent_value = round(value * 100, 2)
+                st.metric(label=f"{product} + {model}", value=f"{percent_value}%")
+            except KeyError:
+                st.warning(f"{product} + {model} 에 대한 정확도 정보가 없습니다.")
 
-    # ✅ 퍼센트로 변환 안내 메시지 출력
-    st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
+        st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
 
-    # ✅ 토글: 원본 데이터프레임 보기
+    # 원본 DataFrame 보기 토글
     if st.checkbox('🗂 Show Original Filtered DataFrame'):
         st.dataframe(filtered_df)
 
-
-
-
-
-# ✅ 한글 ↔ 영어 품목 안내표
+# 품목 한글 표기 안내
 st.sidebar.markdown("""
   | Korean | English    |
   |--------|------------|
