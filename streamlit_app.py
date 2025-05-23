@@ -112,7 +112,7 @@ if vegetables or selected_models:
         ]
 
         with st.expander("📋 정확도 테이블 자세히 보기"):
-            st.dataframe(accuracy_df.style.format("{:.2%}"), use_container_width=True)
+            st.dataframe(accuracy_df, use_container_width=True)
 
     # 원본 DataFrame 보기 (선택한 컬럼만)
     with st.expander("🗂 Show Original Filtered DataFrame"):
