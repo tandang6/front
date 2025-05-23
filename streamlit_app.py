@@ -75,8 +75,14 @@ rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_
 if not vegetables and not selected_models:
     st.info("👈 왼쪽 사이드바에서 품목과 예측 모델을 선택하세요.")
     st.subheader("📋 전체 품목별 모델 정확도 요약")
-    st.dataframe(metric_summary, use_container_width=True)
-
+    
+    # ✅ 1. 퍼센트 변환된 정확도 테이블 출력
+    metric_percent = (metric_summary * 100).round(2)
+    st.dataframe(metric_percent, use_container_width=True)
+    
+    # ✅ 2. 원본 정확도 테이블 자세히 보기
+    with st.expander("📋 전체 정확도 테이블 자세히 보기"):
+        st.dataframe(metric_summary, use_container_width=True)
     st.markdown("""
     ---
     📌 **데이터 출처:** [농림축산식품부 통계누리](https://data.mafra.go.kr/main.do)  
@@ -122,7 +128,7 @@ else:
         with st.expander("📋 정확도 테이블 자세히 보기"):
             st.dataframe(extended_df, use_container_width=True)
 
-    with st.expander("🗂 Show Original Filtered DataFrame"):
+    with st.expander("🗂 원본 필터링된 데이터프레임 보기"):
         target_columns = vegetables + selected_models
         st.dataframe(filtered_df[target_columns])
 
