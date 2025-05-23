@@ -77,27 +77,30 @@ start_date = st.sidebar.date_input('시작일', df.index.min())
 end_date = st.sidebar.date_input('마지막일', df.index.max())
 rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_value=30, value=7)
 
-# ✅ 결과 출력
-if vegetables or selected_models:
-    filtered_df = df.loc[start_date:end_date]
-    st.subheader('📈 품목별 실제 가격 + 예측 결과')
-    plot_predictions_over_time(filtered_df, vegetables + selected_models, rolling_mean_window)
-
-    if st.checkbox('Show Filtered DataFrame'):
-        st.write(filtered_df)
-
 if selected_models:
-    st.subheader('📊 선택한 예측 모델의 정확도 Summary')
+    st.subheader('📊 선택한 예측 모델의 정확도 Summary (퍼센트)')
 
+    target_columns = vegetables + selected_models
+
+    # ✅ st.metric()으로 정확도를 %로 변환하여 출력
     for model_col in selected_models:
-        product = model_col.split('_pred_')[0]   # 예: 'artichoke'
-        model = model_col.split('_pred_')[1]     # 예: 'LGBM'
+        product = model_col.split('_pred_')[0]
+        model = model_col.split('_pred_')[1]
 
         try:
             value = metric_summary.loc[product, model]
-            st.metric(label=f"{product} + {model}", value=round(value, 4))
+            percent_value = round(value * 100, 2)  # 퍼센트 변환
+            st.metric(label=f"{product} + {model}", value=f"{percent_value}%")
         except KeyError:
             st.warning(f"{product} + {model} 에 대한 정확도 정보가 없습니다.")
+
+    # ✅ 퍼센트로 변환 안내 메시지 출력
+    st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
+
+    # ✅ 토글: 원본 데이터프레임 보기
+    if st.checkbox('🗂 Show Original Filtered DataFrame'):
+        st.dataframe(filtered_df)
+
 
 
 
