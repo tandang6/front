@@ -71,8 +71,22 @@ start_date = st.sidebar.date_input('시작일', df.index.min())
 end_date = st.sidebar.date_input('마지막일', df.index.max())
 rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_value=30, value=7)
 
-# 결과 시각화 및 출력
-if vegetables or selected_models:
+# 📌 초기화면: 아무것도 선택하지 않았을 때
+if not vegetables and not selected_models:
+    st.info("👈 왼쪽 사이드바에서 품목과 예측 모델을 선택하세요.")
+    st.subheader("📋 전체 품목별 모델 정확도 요약")
+    st.dataframe(metric_summary, use_container_width=True)
+
+    # 출처 표시 항상
+    st.markdown("""
+    ---
+    📌 **데이터 출처:** [농산물유통정보(KAMIS)](http://www.kamis.or.kr)  
+    🔎 본 대시보드의 예측 결과는 KAMIS에서 제공한 도매가격 데이터를 기반으로 생성되었습니다.  
+    예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
+    본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
+    """)
+else:
+    # 결과 시각화 및 출력
     filtered_df = df.loc[start_date:end_date]
 
     # 1. 그래프
@@ -122,6 +136,7 @@ if vegetables or selected_models:
     with st.expander("🗂 Show Original Filtered DataFrame"):
         target_columns = vegetables + selected_models
         st.dataframe(filtered_df[target_columns])
+
     # 출처 표시
     st.markdown("""
     ---
