@@ -37,10 +37,10 @@ def preprocess_data(df):
 def plot_predictions_over_time(df, vegetables, rolling_mean_window):
    fig, ax = plt.subplots(figsize = (14,7))
    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
-   nums_colors = len(colors)
+   num_colors = len(colors)
 
    for i, veg in enumerate(vegetables):
-    ax.plot(df.index, df[veg], label=veg, linewidth=2, color=colors[i%nums_colors])
+    ax.plot(df.index, df[veg], label=veg, linewidth=2, color=colors[i%num_colors])
     rolling_mean = df[veg].rolling(window=rolling_mean_window).mean()
     ax.plot(df.index, rolling_mean, label=f'{veg} ({rolling_mean_window}-day Rolling Mean)', linestyle='--', color=colors[i%num_colors])
 
