@@ -77,14 +77,14 @@ if not vegetables and not selected_models:
     st.subheader("📋 전체 품목별 모델 정확도 요약")
     st.dataframe(metric_summary, use_container_width=True)
 
-    # 출처 표시 항상
-st.markdown("""
----
-📌 **데이터 출처:** [농림축산식품부 통계누리](https://data.mafra.go.kr/main.do)  
-🔎 본 대시보드의 예측 결과는 정부 공개 데이터를 기반으로 생성되었습니다.  
-예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
-본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
-""")
+    # ✅ 들여쓰기 문제 해결됨: 출처 표시 if 블록 안에 넣기
+    st.markdown("""
+    ---
+    📌 **데이터 출처:** [농림축산식품부 통계누리](https://data.mafra.go.kr/main.do)  
+    🔎 본 대시보드의 예측 결과는 정부 공개 데이터를 기반으로 생성되었습니다.  
+    예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
+    본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
+    """)
 
 else:
     # 결과 시각화 및 출력
