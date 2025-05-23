@@ -23,10 +23,11 @@ else:
 
 # 전처리: 예측 이후 실제값 제거
 def preprocess_data(df):
-    cutoff_date = pd.to_datetime('2020-09-28')
+    cutoff_date = pd.to_datetime('2025-04-30')  # 4월 30일까지만 실제값 유지
     cols_to_zero = ['cabbage', 'radish', 'garlic', 'onion', 'daikon', 'cilantro', 'artichoke']
     df.loc[df.index > cutoff_date, cols_to_zero] = np.nan
     return df
+
 
 df = preprocess_data(df)
 
