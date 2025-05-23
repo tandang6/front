@@ -23,11 +23,10 @@ else:
 
 # 전처리: 예측 이후 실제값 제거
 def preprocess_data(df):
-    cutoff_date = pd.to_datetime('2025-04-30')  # 4월 30일까지만 실제값 유지
+    cutoff_date = pd.to_datetime('2025-04-30')
     cols_to_zero = ['cabbage', 'radish', 'garlic', 'onion', 'daikon', 'cilantro', 'artichoke']
     df.loc[df.index > cutoff_date, cols_to_zero] = np.nan
     return df
-
 
 df = preprocess_data(df)
 
@@ -78,23 +77,20 @@ if not vegetables and not selected_models:
     st.subheader("📋 전체 품목별 모델 정확도 요약")
     st.dataframe(metric_summary, use_container_width=True)
 
-    # ✅ 들여쓰기 문제 해결됨: 출처 표시 if 블록 안에 넣기
     st.markdown("""
     ---
     📌 **데이터 출처:** [농림축산식품부 통계누리](https://data.mafra.go.kr/main.do)  
     🔎 본 대시보드의 예측 결과는 정부 공개 데이터를 기반으로 생성되었습니다.  
     예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
-    본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.""")
+    본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
+    """)
 
 else:
-    # 결과 시각화 및 출력
     filtered_df = df.loc[start_date:end_date]
 
-    # 1. 그래프
     st.subheader('📈 품목별 실제 가격 + 예측 결과')
     plot_predictions_over_time(filtered_df, vegetables + selected_models, rolling_mean_window)
 
-    # 2. 예측값만 최신순 정렬해서 출력
     with st.expander("📈 예측값 (최신순 정렬)"):
         if selected_models:
             pred_df = filtered_df[selected_models].copy()
@@ -103,13 +99,14 @@ else:
         else:
             st.info("예측 모델이 선택되지 않았습니다.")
 
-    # 3. 정확도 카드
     if selected_models:
         st.subheader('📊 선택한 예측 모델의 정확도 Summary (퍼센트)')
 
-        for model_col in selected_models:
-            product = model_col.split('_pred_')[0]
-            model = model_col.split('_pred_')[1]
+        model_splits = [col.split('_pred_') for col in selected_models]
+        selected_rows = list(set([split[0] for split in model_splits]))
+        selected_cols = list(set([split[1] for split in model_splits]))
+
+        for product, model in model_splits:
             try:
                 value = metric_summary.loc[product, model]
                 percent_value = round(value * 100, 2)
@@ -119,12 +116,6 @@ else:
 
         st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
 
-        # 4. 정확도 테이블
-        selected_rows = [col.split('_pred_')[0] for col in selected_models]
-        selected_cols = [col.split('_pred_')[1] for col in selected_models]
-        selected_rows = list(set(selected_rows))
-        selected_cols = list(set(selected_cols))
-
         accuracy_df = metric_summary.loc[
             metric_summary.index.intersection(selected_rows),
             metric_summary.columns.intersection(selected_cols)
@@ -133,20 +124,17 @@ else:
         with st.expander("📋 정확도 테이블 자세히 보기"):
             st.dataframe(accuracy_df, use_container_width=True)
 
-    # 5. 원본 filtered_df 출력
     with st.expander("🗂 Show Original Filtered DataFrame"):
         target_columns = vegetables + selected_models
         st.dataframe(filtered_df[target_columns])
 
-    # 출처 표시
-st.markdown("""
----
-📌 **데이터 출처:** [농림축산식품부 통계누리](https://data.mafra.go.kr/main.do)  
-🔎 본 대시보드의 예측 결과는 정부 공개 데이터를 기반으로 생성되었습니다.  
-예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
-본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
-""")
-
+    st.markdown("""
+    ---
+    📌 **데이터 출처:** [농림축산식품부 통계누리](https://data.mafra.go.kr/main.do)  
+    🔎 본 대시보드의 예측 결과는 정부 공개 데이터를 기반으로 생성되었습니다.  
+    예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
+    본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
+    """)
 
 # 품목 한글 안내
 st.sidebar.markdown("""
