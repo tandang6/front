@@ -101,8 +101,9 @@ if vegetables or selected_models:
         st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
 
     # 원본 DataFrame 보기 토글
-    if st.checkbox('🗂 Show Original Filtered DataFrame'):
-        st.dataframe(filtered_df)
+with st.expander("🗂 Show Original Filtered DataFrame"):
+    st.dataframe(filtered_df)
+
 
 # 품목 한글 표기 안내
 st.sidebar.markdown("""
