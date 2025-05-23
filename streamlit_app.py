@@ -67,8 +67,19 @@ st.markdown("""
 product_columns = [col for col in df.columns if '_pred_' not in col and not col.startswith('Unnamed')]
 sorted_vegetables = sorted(product_columns)
 
-# ✅ 예측 모델 컬럼만 추출
+# 1. 예측 컬럼 목록
 pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
+
+# 2. 라벨 ↔ 실제 컬럼 매핑
+label_map = {
+    f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col
+    for col in pred_model_columns
+}
+
+# 3. 사용자 선택 (라벨 기반)
+selected_label = st.sidebar.selectbox('예측 모델 선택:', list(label_map.keys()))
+selected_model = label_map[selected_label]
+
 
 # ✅ 사용자 입력
 st.sidebar.title('조회 항목 설정')
