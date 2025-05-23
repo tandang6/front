@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 파일 경로
-csv_file_path = 'streamlit.csv'
+csv_file_path = 'streamlit_data.csv'
 metric_file_path = 'metric_summary.csv'
 
 @st.cache_data
@@ -78,13 +78,14 @@ if not vegetables and not selected_models:
     st.dataframe(metric_summary, use_container_width=True)
 
     # 출처 표시 항상
-    st.markdown("""
-    ---
-    📌 **데이터 출처:** [농산물유통정보(KAMIS)](http://www.kamis.or.kr)  
-    🔎 본 대시보드의 예측 결과는 KAMIS에서 제공한 도매가격 데이터를 기반으로 생성되었습니다.  
-    예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
-    본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
-    """)
+st.markdown("""
+---
+📌 **데이터 출처:** [농림축산식품부 통계누리](https://data.mafra.go.kr/main.do)  
+🔎 본 대시보드의 예측 결과는 정부 공개 데이터를 기반으로 생성되었습니다.  
+예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
+본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
+""")
+
 else:
     # 결과 시각화 및 출력
     filtered_df = df.loc[start_date:end_date]
@@ -138,13 +139,14 @@ else:
         st.dataframe(filtered_df[target_columns])
 
     # 출처 표시
-    st.markdown("""
-    ---
-    📌 **데이터 출처:** [농산물유통정보(KAMIS)](http://www.kamis.or.kr)  
-    🔎 본 대시보드의 예측 결과는 KAMIS에서 제공한 도매가격 데이터를 기반으로 생성되었습니다.  
-    예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
-    본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
-    """)
+ st.markdown("""
+---
+📌 **데이터 출처:** [농림축산식품부 통계누리](https://data.mafra.go.kr/main.do)  
+🔎 본 대시보드의 예측 결과는 정부 공개 데이터를 기반으로 생성되었습니다.  
+예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
+본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
+""")
+
 
 # 품목 한글 안내
 st.sidebar.markdown("""
