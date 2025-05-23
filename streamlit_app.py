@@ -116,13 +116,11 @@ else:
 
         st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
 
-        accuracy_df = metric_summary.loc[
-            metric_summary.index.intersection(selected_rows),
-            metric_summary.columns.intersection(selected_cols)
-        ]
+        # ✅ 확장: 선택된 품목의 전체 모델 정확도 보기
+        extended_df = metric_summary.loc[metric_summary.index.intersection(selected_rows)]
 
         with st.expander("📋 정확도 테이블 자세히 보기"):
-            st.dataframe(accuracy_df, use_container_width=True)
+            st.dataframe(extended_df, use_container_width=True)
 
     with st.expander("🗂 Show Original Filtered DataFrame"):
         target_columns = vegetables + selected_models
