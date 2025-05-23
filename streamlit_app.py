@@ -86,8 +86,16 @@ if vegetables or selected_models:
     if st.checkbox('Show Filtered DataFrame'):
         st.write(filtered_df)
 
-    st.subheader('정확도 Summary')
-    st.write(metric_summary)
+if selected_models:
+    # 예측 컬럼에서 'cabbage_pred_XGBoost' → 'cabbage' 로 바꿔서 비교
+    selected_products = [col.split('_pred_')[0] for col in selected_models]
+    
+    # metric_summary에서 해당 품목만 필터링
+    filtered_metrics = metric_summary.loc[metric_summary.index.intersection(selected_products)]
+
+    st.subheader('📊 선택한 예측 모델의 정확도 Summary')
+    st.write(filtered_metrics)
+
 
 # ✅ 한글 ↔ 영어 품목 안내표
 st.sidebar.markdown("""
