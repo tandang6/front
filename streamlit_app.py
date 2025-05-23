@@ -122,6 +122,18 @@ if vegetables or selected_models:
     with st.expander("🗂 Show Original Filtered DataFrame"):
         target_columns = vegetables + selected_models
         st.dataframe(filtered_df[target_columns])
+        
+st.subheader('정확도 Summary')
+st.write(metric_summary)
+
+# 🔽 여기 아래에 추가
+st.markdown("""
+---
+📌 **데이터 출처:** [농산물유통정보(KAMIS)](http://www.kamis.or.kr)  
+🔎 본 대시보드의 예측 결과는 KAMIS에서 제공한 도매가격 데이터를 기반으로 생성되었습니다.  
+예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
+본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
+""")
 
 # 품목 한글 안내
 st.sidebar.markdown("""
