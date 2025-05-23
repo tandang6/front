@@ -82,6 +82,10 @@ if vegetables or selected_models:
     filtered_df = df.loc[start_date:end_date]
     st.subheader('📈 품목별 실제 가격 + 예측 결과')
     plot_predictions_over_time(filtered_df, vegetables + selected_models, rolling_mean_window)
+# 원본 DataFrame 보기 (선택한 컬럼만)
+    with st.expander("🗂 Show Original Filtered DataFrame"):
+        target_columns = vegetables + selected_models
+        st.dataframe(filtered_df[target_columns])
 
     # 정확도 카드 스타일 출력 + 표 출력
     if selected_models:
@@ -114,10 +118,6 @@ if vegetables or selected_models:
         with st.expander("📋 정확도 테이블 자세히 보기"):
             st.dataframe(accuracy_df, use_container_width=True)
 
-    # 원본 DataFrame 보기 (선택한 컬럼만)
-    with st.expander("🗂 Show Original Filtered DataFrame"):
-        target_columns = vegetables + selected_models
-        st.dataframe(filtered_df[target_columns])
 
 # 품목 한글 표기 안내
 st.sidebar.markdown("""
