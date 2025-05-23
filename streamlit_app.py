@@ -53,18 +53,31 @@ def plot_predictions_over_time(df, vegetables, rolling_mean_window):
     st.pyplot(fig)
 
 # 제목
-st.title('🍇농산물 가격 예측 대시보드🥭')
+st.title('🥬🧅🧄 농산물 가격 예측 대시보드 📈')
 st.markdown("왼쪽에서 품목과 예측모델, 날짜를 입력하면 특정기간 이후 예측 가격이 표시됩니다.")
 
+# 품목 한글 매핑
+vegetable_kor_map = {
+    'cabbage': '배추',
+    'radish': '무',
+    'garlic': '마늘',
+    'onion': '양파',
+    'daikon': '대파',
+    'cilantro': '건고추',
+    'artichoke': '깻잎'
+}
+def label_formatter(eng_key):
+    return f"{vegetable_kor_map[eng_key]} ({eng_key})"
+
 # 품목 및 예측 모델 목록
-product_columns = [col for col in df.columns if '_pred_' not in col and not col.startswith('Unnamed')]
+product_columns = list(vegetable_kor_map.keys())
 sorted_vegetables = sorted(product_columns)
 pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
 label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
 
 # 사이드바 UI
 st.sidebar.title('조회 항목 설정')
-vegetables = st.sidebar.multiselect('조회 품목:', sorted_vegetables)
+vegetables = st.sidebar.multiselect('조회 품목:', options=sorted_vegetables, format_func=label_formatter)
 selected_labels = st.sidebar.multiselect('예측 모델 선택:', list(label_map.keys()))
 selected_models = [label_map[label] for label in selected_labels]
 start_date = st.sidebar.date_input('시작일', df.index.min())
@@ -74,15 +87,14 @@ rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_
 # 📌 초기화면: 아무것도 선택하지 않았을 때
 if not vegetables and not selected_models:
     st.info("👈 왼쪽 사이드바에서 품목과 예측 모델을 선택하세요.")
-    st.subheader("📋 전체 품목별 모델 정확도 % ")
-    
-    # ✅ 1. 퍼센트 변환된 정확도 테이블 출력
+    st.subheader("📋 전체 품목별 모델 정확도 요약")
+
     metric_percent = (metric_summary * 100).round(2)
     st.dataframe(metric_percent, use_container_width=True)
-    
-    # ✅ 2. 원본 정확도 테이블 자세히 보기
+
     with st.expander("📋 전체 정확도 테이블 자세히 보기"):
         st.dataframe(metric_summary, use_container_width=True)
+
     st.markdown("""
     ---
     📌 **데이터 출처:** [농림축산식품부 통계누리](https://data.mafra.go.kr/main.do)  
@@ -122,7 +134,6 @@ else:
 
         st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
 
-        # ✅ 확장: 선택된 품목의 전체 모델 정확도 보기
         extended_df = metric_summary.loc[metric_summary.index.intersection(selected_rows)]
 
         with st.expander("📋 정확도 테이블 자세히 보기"):
@@ -139,16 +150,3 @@ else:
     예측 모델은 과거 가격 패턴을 학습하여 향후 농산물 가격 변동을 추정합니다.  
     본 결과는 참고용이며 실제 가격과는 차이가 발생할 수 있습니다.
     """)
-
-# 품목 한글 안내
-st.sidebar.markdown("""
-  | Korean | English    |
-  |--------|------------|
-  | 배추   | cabbage    |
-  | 무     | radish     |
-  | 마늘   | garlic     |
-  | 양파   | onion      |
-  | 대파   | daikon     |
-  | 건고추 | cilantro   |
-  | 깻잎   | artichoke  |
-""")
