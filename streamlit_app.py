@@ -74,9 +74,21 @@ rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_
 # 결과 시각화 및 출력
 if vegetables or selected_models:
     filtered_df = df.loc[start_date:end_date]
+
+    # 1. 그래프
     st.subheader('📈 품목별 실제 가격 + 예측 결과')
     plot_predictions_over_time(filtered_df, vegetables + selected_models, rolling_mean_window)
 
+    # 2. 예측값만 최신순 정렬해서 출력
+    with st.expander("📈 예측값 (최신순 정렬)"):
+        if selected_models:
+            pred_df = filtered_df[selected_models].copy()
+            pred_df_sorted = pred_df.sort_index(ascending=False)
+            st.dataframe(pred_df_sorted, use_container_width=True)
+        else:
+            st.info("예측 모델이 선택되지 않았습니다.")
+
+    # 3. 정확도 카드
     if selected_models:
         st.subheader('📊 선택한 예측 모델의 정확도 Summary (퍼센트)')
 
@@ -92,7 +104,7 @@ if vegetables or selected_models:
 
         st.success("✔ 정확도는 퍼센트(%)로 변환되어 위에 표시되었습니다.")
 
-        # 정확도 테이블 출력 (퍼센트 아님, expander)
+        # 4. 정확도 테이블
         selected_rows = [col.split('_pred_')[0] for col in selected_models]
         selected_cols = [col.split('_pred_')[1] for col in selected_models]
         selected_rows = list(set(selected_rows))
@@ -106,19 +118,10 @@ if vegetables or selected_models:
         with st.expander("📋 정확도 테이블 자세히 보기"):
             st.dataframe(accuracy_df, use_container_width=True)
 
-    # 원본 filtered_df 출력
+    # 5. 원본 filtered_df 출력
     with st.expander("🗂 Show Original Filtered DataFrame"):
         target_columns = vegetables + selected_models
         st.dataframe(filtered_df[target_columns])
-
-    # 예측값만 최신순 정렬해서 출력
-    with st.expander("📈 예측값 (최신순 정렬)"):
-        if selected_models:
-            pred_df = filtered_df[selected_models].copy()
-            pred_df_sorted = pred_df.sort_index(ascending=False)
-            st.dataframe(pred_df_sorted, use_container_width=True)
-        else:
-            st.info("예측 모델이 선택되지 않았습니다.")
 
 # 품목 한글 안내
 st.sidebar.markdown("""
