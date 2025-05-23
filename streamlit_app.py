@@ -63,11 +63,7 @@ st.markdown("""
 왼쪽에서 품목과 예측모델, 날짜를 입력하면 특정기간 이후 예측 가격이 표시됩니다.
 """)
 
-# ✅ 품목과 예측 모델 구분
-product_columns = [col for col in df.columns if '_pred_' not in col and not col.startswith('Unnamed')]
-sorted_vegetables = sorted(product_columns)
-
-pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
+# ✅ 예측 모델 라벨 ↔ 컬럼명 매핑
 label_map = {
     f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col
     for col in pred_model_columns
@@ -76,24 +72,32 @@ label_map = {
 # ✅ 사용자 UI
 st.sidebar.title('조회 항목 설정')
 vegetables = st.sidebar.multiselect('조회 품목:', sorted_vegetables)
-selected_label = st.sidebar.selectbox('예측 모델 선택:', list(label_map.keys()))
-selected_model = label_map[selected_label]
 
+# ✅ 예측 모델 다중 선택
+selected_labels = st.sidebar.multiselect('예측 모델 선택:', list(label_map.keys()))
+selected_models = [label_map[label] for label in selected_labels]
+
+# ✅ 날짜 및 이동 평균
 start_date = st.sidebar.date_input('시작일', df.index.min())
 end_date = st.sidebar.date_input('마지막일', df.index.max())
 rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_value=30, value=7)
 
 # ✅ 필터링 & 시각화
-if vegetables:
+if vegetables or selected_models:
     filtered_df = df.loc[start_date:end_date]
     st.subheader('📈 품목별 실제 가격 + 예측 결과')
-    plot_predictions_over_time(filtered_df, vegetables + [selected_model], rolling_mean_window)
+    plot_predictions_over_time(
+        filtered_df,
+        vegetables + selected_models,
+        rolling_mean_window
+    )
 
     if st.checkbox('Show Filtered DataFrame'):
         st.write(filtered_df)
 
     st.subheader('정확도 Summary')
     st.write(metric_summary)
+
 
 
 
