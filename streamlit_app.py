@@ -63,33 +63,29 @@ st.markdown("""
 왼쪽에서 품목과 예측모델, 날짜를 입력하면 특정기간 이후 예측 가격이 표시됩니다.
 """)
 
-# ✅ 1. 실제 품목만 추출 (예측 결과 컬럼 제거)
+# ✅ 실제 품목 컬럼만 추출
 product_columns = [col for col in df.columns if '_pred_' not in col and not col.startswith('Unnamed')]
 sorted_vegetables = sorted(product_columns)
 
-# ✅ 2. 예측 모델 컬럼만 추출
+# ✅ 예측 모델 컬럼만 추출
 pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
 
-# ✅ 3. 사용자 입력: 품목 선택 (다중), 예측 모델 선택 (단일)
+# ✅ 사용자 입력
 st.sidebar.title('조회 항목 설정')
 vegetables = st.sidebar.multiselect('조회 품목:', sorted_vegetables)
 selected_model = st.sidebar.selectbox('예측 모델 선택:', pred_model_columns)
 
-# ✅ 4. 날짜 및 이동평균 설정
+# ✅ 날짜 및 이동 평균
 start_date = st.sidebar.date_input('시작일', df.index.min())
 end_date = st.sidebar.date_input('마지막일', df.index.max())
 rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_value=30, value=7)
 
-# ✅ 5. 조회 버튼 추가
-run_query = st.sidebar.button('📊 조회하기')
-
-# ✅ 6. 조회 버튼 눌렀을 때만 결과 출력
-if run_query:
+# ✅ 조회 조건 자동 반영
+if vegetables and selected_model:
     filtered_df = df.loc[start_date:end_date]
-
-    if vegetables:
-        st.subheader('📈 품목별 가격 및 예측 결과')
-        plot_predictions_over_time(filtered_df, vegetables + [selected_model], rolling_mean_window)
+    st.subheader('📈 품목별 실제 가격 + 예측 결과')
+    # 실제 품목 + 예측 모델 포함해서 시각화
+    plot_predictions_over_time(filtered_df, vegetables + [selected_model], rolling_mean_window)
 
     if st.checkbox('Show Filtered DataFrame'):
         st.write(filtered_df)
