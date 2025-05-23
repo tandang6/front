@@ -66,8 +66,10 @@ vegetable_kor_map = {
     'cilantro': '건고추',
     'artichoke': '깻잎'
 }
+
+# ✅ 영어 (한글) 형식으로 표시
 def label_formatter(eng_key):
-    return f"{vegetable_kor_map[eng_key]} ({eng_key})"
+    return f"{eng_key} ({vegetable_kor_map[eng_key]})"
 
 # 품목 및 예측 모델 목록
 product_columns = list(vegetable_kor_map.keys())
