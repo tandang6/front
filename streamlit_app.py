@@ -74,7 +74,7 @@ rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_
 # 📌 초기화면: 아무것도 선택하지 않았을 때
 if not vegetables and not selected_models:
     st.info("👈 왼쪽 사이드바에서 품목과 예측 모델을 선택하세요.")
-    st.subheader("📋 전체 품목별 모델 정확도 요약")
+    st.subheader("📋 전체 품목별 모델 정확도 % ")
     
     # ✅ 1. 퍼센트 변환된 정확도 테이블 출력
     metric_percent = (metric_summary * 100).round(2)
