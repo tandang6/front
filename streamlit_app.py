@@ -73,21 +73,12 @@ def label_formatter(eng_key):
     
 
 # 품목 및 예측 모델 목록
-#product_columns = list(vegetable_kor_map.keys())
-#sorted_vegetables = sorted(product_columns)
-#pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
-#label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
-
-
-# 품목 및 예측 모델 목록
 product_columns = list(vegetable_kor_map.keys())
 sorted_vegetables = sorted(product_columns)
+pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
+label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
 
-# 예측모델 컬럼 필터링 수정
-pred_model_columns = sorted([
-    col for col in df.columns
-    if '_pred_' in col and any(veg in col for veg in sorted_vegetables)
-])
+
 
 # 라벨 맵 구성
 label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
@@ -95,12 +86,35 @@ label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col
 
 # 사이드바 UI
 st.sidebar.title('조회 항목 설정')
-vegetables = st.sidebar.multiselect('조회 품목:', options=sorted_vegetables, format_func=label_formatter)
-selected_labels = st.sidebar.multiselect('예측 모델 선택:', list(label_map.keys()))
+# 1. 조회 품목 다중 선택 받기
+vegetables = st.sidebar.multiselect(
+    '조회 품목:', 
+    options=sorted_vegetables, 
+    format_func=label_formatter
+)
+
+# 2. 조회 품목에 맞는 예측 모델 키 필터링
+filtered_label_keys = [
+    label for label in label_map.keys()
+    if any(veg in label for veg in vegetables)
+]
+
+# 3. 필터링된 예측 모델 선택 받기
+selected_labels = st.sidebar.multiselect(
+    '예측 모델 선택:', 
+    options=filtered_label_keys
+)
+
+# 4. 선택된 예측 모델 컬럼명 리스트 생성
 selected_models = [label_map[label] for label in selected_labels]
-start_date = st.sidebar.date_input('시작일', df.index.min())
-end_date = st.sidebar.date_input('마지막일', df.index.max())
+
+# 5. 날짜 입력
+start_date = st.sidebar.date_input('시작일', df.index.min().date())
+end_date = st.sidebar.date_input('마지막일', df.index.max().date())
+
+# 6. 롤링 윈도우 슬라이더
 rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_value=30, value=7)
+
 
 # 📌 초기화면: 아무것도 선택하지 않았을 때
 if not vegetables and not selected_models:
