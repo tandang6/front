@@ -115,8 +115,13 @@ selected_labels = st.sidebar.multiselect(
     key='selected_labels'  # 세션 상태 자동 관리
 )
 
-# 7. selected_labels를 실제 컬럼명 리스트로 변환
-selected_models = [label_map[label] for label in selected_labels if label in label_map]
+selected_labels = st.sidebar.multiselect(
+    '예측 모델 선택:',
+    options=available_labels,
+    value=valid_selected_labels if available_labels else None,
+    key='selected_labels'
+)
+
 
 # 8. 날짜 입력
 start_date = st.sidebar.date_input('시작일', df.index.min().date())
