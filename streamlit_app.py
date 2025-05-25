@@ -86,27 +86,39 @@ label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col
 
 # 사이드바 UI
 st.sidebar.title('조회 항목 설정')
-# 1. 조회 품목 다중 선택 받기
+# 1. 조회 품목 선택
 vegetables = st.sidebar.multiselect(
     '조회 품목:', 
     options=sorted_vegetables, 
     format_func=label_formatter
 )
 
-# 2. 조회 품목에 맞는 예측 모델 키 필터링
+# 2. 현재 조회 품목에 포함된 예측 모델만 필터링
 filtered_label_keys = [
     label for label in label_map.keys()
-    if any(veg in label for veg in vegetables)
+    if any(veg == label.split(' ')[0] for veg in vegetables)  # 품목명 정확히 매칭
 ]
 
-# 3. 필터링된 예측 모델 선택 받기
+# 3. 이전 선택 유지 위해 기본값 설정
+# (Streamlit이 재실행될 때 기본 선택값을 지정해줌)
+default_selected_labels = st.session_state.get('selected_labels', [])
+
+# 4. filtered_label_keys + 기존 선택값 병합 (중복 제거)
+available_labels = list(set(filtered_label_keys + default_selected_labels))
+
+# 5. 예측 모델 선택 위젯
 selected_labels = st.sidebar.multiselect(
-    '예측 모델 선택:', 
-    options=filtered_label_keys
+    '예측 모델 선택:',
+    options=available_labels,
+    default=default_selected_labels
 )
 
-# 4. 선택된 예측 모델 컬럼명 리스트 생성
-selected_models = [label_map[label] for label in selected_labels]
+# 6. 선택한 모델 세션 상태에 저장
+st.session_state['selected_labels'] = selected_labels
+
+# 7. 선택된 예측 모델 컬럼명 리스트 생성
+selected_models = [label_map[label] for label in selected_labels if label in label_map]
+
 
 # 5. 날짜 입력
 start_date = st.sidebar.date_input('시작일', df.index.min().date())
