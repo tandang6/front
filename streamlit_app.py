@@ -70,12 +70,27 @@ vegetable_kor_map = {
 # ✅ 영어 (한글) 형식으로 표시
 def label_formatter(eng_key):
     return f"{eng_key} ({vegetable_kor_map[eng_key]})"
-
+    
+'''
 # 품목 및 예측 모델 목록
 product_columns = list(vegetable_kor_map.keys())
 sorted_vegetables = sorted(product_columns)
 pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
 label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
+'''
+# 품목 및 예측 모델 목록
+product_columns = list(vegetable_kor_map.keys())
+sorted_vegetables = sorted(product_columns)
+
+# 예측모델 컬럼 필터링 수정
+pred_model_columns = sorted([
+    col for col in df.columns
+    if '_pred_' in col and any(veg in col for veg in sorted_vegetables)
+])
+
+# 라벨 맵 구성
+label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
+
 
 # 사이드바 UI
 st.sidebar.title('조회 항목 설정')
