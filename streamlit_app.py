@@ -128,6 +128,15 @@ selected_labels = st.sidebar.multiselect(
 # 8. 세션 상태 갱신
 st.session_state['selected_labels'] = selected_labels
 
+# 여기서 selected_models 선언
+selected_models = [label_map[label] for label in selected_labels if label in label_map]
+
+# 이후부터 selected_models를 안전하게 사용할 수 있음
+if not vegetables and not selected_models:
+    st.info("👈 왼쪽 사이드바에서 품목과 예측 모델을 선택하세요.")
+    # 이하 생략...
+
+
 
 
 # 5. 날짜 입력
