@@ -67,25 +67,19 @@ vegetable_kor_map = {
     'artichoke': '깻잎'
 }
 
-# ✅ 영어 (한글) 형식으로 표시
+# 영어 (한글) 형식으로 표시
 def label_formatter(eng_key):
     return f"{eng_key} ({vegetable_kor_map[eng_key]})"
     
-
 # 품목 및 예측 모델 목록
 product_columns = list(vegetable_kor_map.keys())
 sorted_vegetables = sorted(product_columns)
 pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
 label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
 
-
-
-# 라벨 맵 구성
-label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
-
-
 # 사이드바 UI
 st.sidebar.title('조회 항목 설정')
+
 # 1. 조회 품목 선택
 vegetables = st.sidebar.multiselect(
     '조회 품목:', 
@@ -93,61 +87,46 @@ vegetables = st.sidebar.multiselect(
     format_func=label_formatter
 )
 
-# 2. 조회 품목에 맞는 예측 모델 필터링
+# 2. 조회 품목에 맞는 예측 모델 필터링 (수정: split(' (')로 정확하게 분리)
 filtered_label_keys = [
     label for label in label_map.keys()
-    if any(veg == label.split(' ')[0] for veg in vegetables)
+    if any(veg == label.split(' (')[0] for veg in vegetables)
 ]
 
 # 3. 이전 선택 유지 (세션에서 가져오기)
 default_selected_labels = st.session_state.get('selected_labels', [])
 
-# 4. 조회 품목에 맞는 라벨 필터링
-filtered_label_keys = [
-    label for label in label_map.keys()
-    if any(veg == label.split(' ')[0] for veg in vegetables)
-]
-
-# 5. default_selected_labels를 filtered_label_keys 기준으로 필터링
+# 4. default_selected_labels를 filtered_label_keys 기준으로 필터링
 valid_selected_labels = [label for label in default_selected_labels if label in filtered_label_keys]
 
-# 6. available_labels는 filtered_label_keys 기준, 순서 유지하면서 valid_selected_labels 포함
+# 5. available_labels는 filtered_label_keys 기준, 순서 유지하면서 valid_selected_labels 포함
 def unique_preserve_order(seq):
     seen = set()
     return [x for x in seq if not (x in seen or seen.add(x))]
 
 available_labels = unique_preserve_order(filtered_label_keys + valid_selected_labels)
 
-# 7. multiselect 호출 시 options와 value 동기화
+# 6. multiselect 호출 시 options와 value 동기화
 selected_labels = st.sidebar.multiselect(
     '예측 모델 선택:',
     options=available_labels,
     default=valid_selected_labels
 )
 
-# 8. 세션 상태 갱신
+# 7. 세션 상태 갱신
 st.session_state['selected_labels'] = selected_labels
 
-# 여기서 selected_models 선언
+# 8. selected_models 선언 (실제 df 컬럼명 리스트)
 selected_models = [label_map[label] for label in selected_labels if label in label_map]
 
-# 이후부터 selected_models를 안전하게 사용할 수 있음
-if not vegetables and not selected_models:
-    st.info("👈 왼쪽 사이드바에서 품목과 예측 모델을 선택하세요.")
-    # 이하 생략...
-
-
-
-
-# 5. 날짜 입력
+# 9. 날짜 입력 - 사이드바에 위치 변경
 start_date = st.sidebar.date_input('시작일', df.index.min().date())
 end_date = st.sidebar.date_input('마지막일', df.index.max().date())
 
-# 6. 롤링 윈도우 슬라이더
+# 10. 롤링 윈도우 슬라이더
 rolling_mean_window = st.sidebar.slider('Rolling Mean Window', min_value=1, max_value=30, value=7)
 
-
-# 📌 초기화면: 아무것도 선택하지 않았을 때
+# 초기화면: 아무것도 선택하지 않았을 때
 if not vegetables and not selected_models:
     st.info("👈 왼쪽 사이드바에서 품목과 예측 모델을 선택하세요.")
     st.subheader("📋 전체 품목별 모델 정확도 %")
