@@ -71,13 +71,14 @@ vegetable_kor_map = {
 def label_formatter(eng_key):
     return f"{eng_key} ({vegetable_kor_map[eng_key]})"
     
-'''
+
 # 품목 및 예측 모델 목록
-product_columns = list(vegetable_kor_map.keys())
-sorted_vegetables = sorted(product_columns)
-pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
-label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
-'''
+#product_columns = list(vegetable_kor_map.keys())
+#sorted_vegetables = sorted(product_columns)
+#pred_model_columns = sorted([col for col in df.columns if '_pred_' in col])
+#label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col in pred_model_columns}
+
+
 # 품목 및 예측 모델 목록
 product_columns = list(vegetable_kor_map.keys())
 sorted_vegetables = sorted(product_columns)
