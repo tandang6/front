@@ -86,7 +86,7 @@ label_map = {f"{col.split('_pred_')[0]} ({col.split('_pred_')[1]})": col for col
 
 # 사이드바 UI
 st.sidebar.title('조회 항목 설정')
-# 1. 세션 상태에 처음 한 번만 초기화
+# 1. 세션 상태 초기화 (최초 실행 시)
 if "selected_labels" not in st.session_state:
     st.session_state.selected_labels = []
 
@@ -97,31 +97,33 @@ vegetables = st.sidebar.multiselect(
     format_func=label_formatter
 )
 
-# 3. 현재 조회 품목에 해당하는 예측 모델 키만 추출
+# 3. 현재 품목에 해당하는 예측 모델만 필터링
 filtered_label_keys = [
     label for label in label_map.keys()
     if any(veg == label.split(' ')[0] for veg in vegetables)
 ]
 
-# 4. 중복 제거하며 순서 유지
+# 4. 순서 유지하면서 중복 제거
 def unique_preserve_order(seq):
     seen = set()
     return [x for x in seq if not (x in seen or seen.add(x))]
 
 available_labels = unique_preserve_order(filtered_label_keys + st.session_state.selected_labels)
 
-# 5. 예측 모델 선택 위젯 (default ❌, value ✅)
+# 🔒 세션 상태 값 중 현재 선택 가능한 옵션만 남기기
+initial_labels = [label for label in st.session_state.selected_labels if label in available_labels]
+
+# 5. 예측 모델 선택
 selected_labels = st.sidebar.multiselect(
     '예측 모델 선택:',
     options=available_labels,
-    default=None,  # default 사용 ❌
-    value=st.session_state.selected_labels  # 현재 세션값 사용 ✅
+    value=initial_labels  # <- 이 부분이 안전하게 처리됨
 )
 
-# 6. 선택값 업데이트
+# 6. 선택값 세션에 업데이트
 st.session_state.selected_labels = selected_labels
 
-# 7. 예측 컬럼명 변환
+# 7. 예측 컬럼명 생성
 selected_models = [label_map[label] for label in selected_labels if label in label_map]
 
 
