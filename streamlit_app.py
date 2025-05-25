@@ -118,9 +118,10 @@ selected_labels = st.sidebar.multiselect(
 selected_labels = st.sidebar.multiselect(
     '예측 모델 선택:',
     options=available_labels,
-    value=valid_selected_labels if available_labels else None,
+    default=valid_selected_labels if available_labels else [],
     key='selected_labels'
 )
+
 
 
 # 8. 날짜 입력
