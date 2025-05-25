@@ -99,28 +99,35 @@ filtered_label_keys = [
     if any(veg == label.split(' ')[0] for veg in vegetables)
 ]
 
-# 3. 이전 선택 유지
+# 3. 이전 선택 유지 (세션에서 가져오기)
 default_selected_labels = st.session_state.get('selected_labels', [])
 
-# 4. 중복 제거하며 순서 유지
+# 4. 조회 품목에 맞는 라벨 필터링
+filtered_label_keys = [
+    label for label in label_map.keys()
+    if any(veg == label.split(' ')[0] for veg in vegetables)
+]
+
+# 5. default_selected_labels를 filtered_label_keys 기준으로 필터링
+valid_selected_labels = [label for label in default_selected_labels if label in filtered_label_keys]
+
+# 6. available_labels는 filtered_label_keys 기준, 순서 유지하면서 valid_selected_labels 포함
 def unique_preserve_order(seq):
     seen = set()
     return [x for x in seq if not (x in seen or seen.add(x))]
 
-available_labels = unique_preserve_order(filtered_label_keys + default_selected_labels)
+available_labels = unique_preserve_order(filtered_label_keys + valid_selected_labels)
 
-# 5. 예측 모델 선택 위젯
+# 7. multiselect 호출 시 options와 value 동기화
 selected_labels = st.sidebar.multiselect(
     '예측 모델 선택:',
     options=available_labels,
-    default=default_selected_labels
+    default=valid_selected_labels
 )
 
-# 6. 선택값 세션에 저장
+# 8. 세션 상태 갱신
 st.session_state['selected_labels'] = selected_labels
 
-# 7. 선택한 모델 컬럼명 리스트 생성
-selected_models = [label_map[label] for label in selected_labels if label in label_map]
 
 
 # 5. 날짜 입력
